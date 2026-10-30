@@ -39,33 +39,33 @@
       <span></span><span></span><span></span><span></span><span class="on"></span><span></span><span></span><span></span><span></span>
     </div>
     <h1>Sudoku</h1>
-    <p class="sub" id="homeSub">Pick a level</p>
+    <p class="sub" id="homeSub" data-i18n="pick">Pick a level</p>
 
     <button class="daily glass" id="dailyBtn">
       <span class="daily-left">
-        <span class="daily-name">Daily</span>
+        <span class="daily-name" data-i18n="daily">Daily</span>
         <span class="daily-date" id="dailyDate"></span>
       </span>
       <span class="daily-right" id="dailyRight"></span>
     </button>
 
     <div class="levels glass" id="levels">
-      <button class="level" data-level="kid"><span>Kid</span><em id="bk"></em></button>
-      <button class="level" data-level="easy"><span>Easy</span><em id="be"></em></button>
-      <button class="level" data-level="medium"><span>Medium</span><em id="bm"></em></button>
-      <button class="level" data-level="hard"><span>Hard</span><em id="bh"></em></button>
-      <button class="level" data-level="expert"><span>Expert</span><em id="bx"></em></button>
-      <button class="level" data-level="extreme"><span>Extreme</span><em id="bz"></em></button>
+      <button class="level" data-level="kid"><span data-i18n="kid">Kid</span><em id="bk"></em></button>
+      <button class="level" data-level="easy"><span data-i18n="easy">Easy</span><em id="be"></em></button>
+      <button class="level" data-level="medium"><span data-i18n="medium">Medium</span><em id="bm"></em></button>
+      <button class="level" data-level="hard"><span data-i18n="hard">Hard</span><em id="bh"></em></button>
+      <button class="level" data-level="expert"><span data-i18n="expert">Expert</span><em id="bx"></em></button>
+      <button class="level" data-level="extreme"><span data-i18n="extreme">Extreme</span><em id="bz"></em></button>
     </div>
 
     <button class="continue" id="continueBtn" hidden>
-      <span class="continue-label">Continue</span>
+      <span class="continue-label" data-i18n="continue">Continue</span>
       <span class="continue-meta" id="continueMeta"></span>
     </button>
   </div>
 
   <footer class="home-foot">
-    <button class="plain small" id="statsBtn">Stats</button>
+    <button class="plain small" id="statsBtn" data-i18n="stats">Stats</button>
   </footer>
 </section>
 
@@ -88,8 +88,8 @@
     <div class="board glass" id="board" role="grid" aria-label="Sudoku board"></div>
     <div class="pause-cover glass" id="pauseCover" hidden>
       <div class="pause-menu">
-        <button class="big" id="resumeBtn">Resume</button>
-        <button class="plain" id="restartBtn">Restart puzzle</button>
+        <button class="big" id="resumeBtn" data-i18n="resume">Resume</button>
+        <button class="plain" id="restartBtn" data-i18n="restart">Restart puzzle</button>
       </div>
     </div>
   </div>
@@ -97,23 +97,23 @@
   <div class="tools glass" id="tools">
     <button class="tool" id="undoBtn">
       <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M9 14 4 9l5-5M4 9h9a6 6 0 0 1 0 12h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span>Undo</span>
+      <span data-i18n="undo">Undo</span>
     </button>
     <button class="tool" id="eraseBtn">
       <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="m4 15 9-9a2 2 0 0 1 3 0l4 4a2 2 0 0 1 0 3l-7 7H9l-5-5Z M9 20h11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span>Erase</span>
+      <span data-i18n="erase">Erase</span>
     </button>
     <button class="tool" id="notesBtn">
       <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 20h4l11-11a2 2 0 0 0 0-3l-1-1a2 2 0 0 0-3 0L4 16v4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span>Notes</span>
+      <span data-i18n="notes">Notes</span>
     </button>
     <button class="tool" id="autoBtn">
       <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 4h16v16H4zM4 10.7h16M4 17.3h16M10.7 4v16M17.3 4v16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
-      <span>Auto notes</span>
+      <span data-i18n="auto">Auto notes</span>
     </button>
     <button class="tool" id="hintBtn">
       <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span>Hint</span>
+      <span data-i18n="hint">Hint</span>
     </button>
   </div>
 
@@ -130,69 +130,75 @@
     <div class="check" aria-hidden="true">
       <svg viewBox="0 0 24 24" width="44" height="44"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
-    <h2>Solved</h2>
+    <h2 data-i18n="solved">Solved</h2>
     <p class="win-meta"><span id="winLevel">Easy</span> · <span id="winTime">0:00</span></p>
-    <p class="win-best" id="winBest" hidden>New best time</p>
+    <p class="win-best" id="winBest" hidden data-i18n="newBest">New best time</p>
     <button class="big" id="againBtn">Play again</button>
-    <button class="plain" id="homeBtn">Home</button>
+    <button class="plain" id="homeBtn" data-i18n="home">Home</button>
   </div>
 </section>
 
 <!-- GAME OVER -->
-<section id="over" class="screen sheet" hidden>
+<section id="over" class="overlay" hidden>
   <div class="sheet-card glass">
     <div class="check bad" aria-hidden="true">
       <svg viewBox="0 0 24 24" width="44" height="44"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
     </div>
-    <h2>Three mistakes</h2>
-    <p class="win-meta">That one got away.</p>
-    <button class="big" id="retryBtn">Retry this puzzle</button>
-    <button class="plain" id="overNewBtn">New puzzle</button>
+    <h2 data-i18n="three">Three mistakes</h2>
+    <p class="win-meta" data-i18n="gotAway">That one got away.</p>
+    <button class="big" id="retryBtn" data-i18n="retry">Retry this puzzle</button>
+    <button class="plain" id="overNewBtn" data-i18n="newPuzzle">New puzzle</button>
   </div>
 </section>
 
 <!-- STATS -->
 <section id="stats" class="screen sheet" hidden>
   <div class="sheet-card glass stats-card">
-    <h2>Stats</h2>
-    <div class="streak"><b id="streakNum">0</b><span>day streak</span></div>
+    <h2 data-i18n="stats">Stats</h2>
+    <div class="streak"><b id="streakNum">0</b><span data-i18n="streak">day streak</span></div>
     <table class="stats-table" id="statsTable">
-      <thead><tr><th>Level</th><th>Solved</th><th>Best</th><th>Average</th></tr></thead>
+      <thead><tr><th data-i18n="level">Level</th><th data-i18n="solvedCol">Solved</th><th data-i18n="best">Best</th><th data-i18n="avg">Average</th></tr></thead>
       <tbody></tbody>
     </table>
-    <button class="plain" id="statsClose">Done</button>
+    <button class="plain" id="statsClose" data-i18n="done">Done</button>
   </div>
 </section>
 
 <!-- CONFIRM NEW GAME -->
 <section id="confirm" class="screen sheet" hidden>
   <div class="sheet-card glass">
-    <h2>Start a new puzzle?</h2>
+    <h2 data-i18n="confirmTitle">Start a new puzzle?</h2>
     <p class="win-meta" id="confirmText">Your current game will be lost.</p>
-    <button class="big" id="confirmYes">New puzzle</button>
-    <button class="plain" id="confirmNo">Keep playing</button>
+    <button class="big" id="confirmYes" data-i18n="newPuzzle">New puzzle</button>
+    <button class="plain" id="confirmNo" data-i18n="keep">Keep playing</button>
   </div>
 </section>
 
 <!-- SETTINGS -->
 <section id="settings" class="screen sheet" hidden>
   <div class="sheet-card glass settings-card">
-    <h2>Settings</h2>
+    <h2 data-i18n="settings">Settings</h2>
     <div class="setting-list">
-      <label class="setting"><span><b>Highlight</b><small>Row, column, box and same numbers</small></span><input type="checkbox" id="optHighlight" class="switch"></label>
-      <label class="setting"><span><b>Show mistakes</b><small>Wrong numbers turn red</small></span><input type="checkbox" id="optMistakes" class="switch"></label>
-      <label class="setting"><span><b>Mistake limit</b><small>Three mistakes end the game</small></span><input type="checkbox" id="optLimit" class="switch"></label>
-      <label class="setting"><span><b>Timer</b><small>Show the clock while playing</small></span><input type="checkbox" id="optTimer" class="switch"></label>
+      <label class="setting"><span><b data-i18n="highlight">Highlight</b><small data-i18n="highlightSub">Row, column, box and same numbers</small></span><input type="checkbox" id="optHighlight" class="switch"></label>
+      <label class="setting"><span><b data-i18n="showMistakes">Show mistakes</b><small data-i18n="showMistakesSub">Wrong numbers turn red</small></span><input type="checkbox" id="optMistakes" class="switch"></label>
+      <label class="setting"><span><b data-i18n="limit">Mistake limit</b><small data-i18n="limitSub">Three mistakes end the game</small></span><input type="checkbox" id="optLimit" class="switch"></label>
+      <label class="setting"><span><b data-i18n="timer">Timer</b><small data-i18n="timerSub">Show the clock while playing</small></span><input type="checkbox" id="optTimer" class="switch"></label>
     </div>
-    <p class="setting-head">Tools</p>
+    <p class="setting-head" data-i18n="language">Language</p>
     <div class="setting-list">
-      <label class="setting"><span><b>Undo</b></span><input type="checkbox" id="optUndo" class="switch"></label>
-      <label class="setting"><span><b>Erase</b></span><input type="checkbox" id="optErase" class="switch"></label>
-      <label class="setting"><span><b>Notes</b></span><input type="checkbox" id="optNotes" class="switch"></label>
-      <label class="setting"><span><b>Auto notes</b></span><input type="checkbox" id="optAuto" class="switch"></label>
-      <label class="setting"><span><b>Hint</b></span><input type="checkbox" id="optHint" class="switch"></label>
+      <div class="setting"><span><b data-i18n="language">Language</b></span>
+        <select id="optLang" class="select"></select>
+      </div>
     </div>
-    <button class="plain" id="settingsClose">Done</button>
+    <p class="setting-head" data-i18n="tools">Tools</p>
+    <div class="setting-list">
+      <label class="setting"><span><b data-i18n="undo">Undo</b></span><input type="checkbox" id="optUndo" class="switch"></label>
+      <label class="setting"><span><b data-i18n="erase">Erase</b></span><input type="checkbox" id="optErase" class="switch"></label>
+      <label class="setting"><span><b data-i18n="notes">Notes</b></span><input type="checkbox" id="optNotes" class="switch"></label>
+      <label class="setting"><span><b data-i18n="auto">Auto notes</b></span><input type="checkbox" id="optAuto" class="switch"></label>
+      <label class="setting"><span><b data-i18n="hint">Hint</b></span><input type="checkbox" id="optHint" class="switch"></label>
+    </div>
+    <button class="plain" id="settingsClose" data-i18n="done">Done</button>
   </div>
 </section>
 
@@ -200,17 +206,18 @@
 <section id="install" class="screen sheet" hidden>
   <div class="sheet-card glass">
     <img class="install-icon" src="icons/icon-180.png" alt="" width="84" height="84">
-    <h2>Install Sudoku</h2>
-    <p class="win-meta">Full screen, works offline, lives on your Home Screen.</p>
+    <h2 data-i18n="installTitle">Install Sudoku</h2>
+    <p class="win-meta" data-i18n="installSub">Full screen, works offline, lives on your Home Screen.</p>
     <ol class="steps">
-      <li>Tap <b>Share</b> <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 15V4m0 0 4 4m-4-4-4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> at the bottom of Safari</li>
-      <li>Choose <b>Add to Home Screen</b></li>
-      <li>Tap <b>Add</b></li>
+      <li><span data-i18n="step1a">Tap</span> <b data-i18n="share">Share</b> <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 15V4m0 0 4 4m-4-4-4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> <span data-i18n="step1b">at the bottom of Safari</span></li>
+      <li><span data-i18n="step2a">Choose</span> <b data-i18n="addHome">Add to Home Screen</b></li>
+      <li><span data-i18n="step3a">Tap</span> <b data-i18n="add">Add</b></li>
     </ol>
-    <button class="big" id="installClose">OK</button>
+    <button class="big" id="installClose" data-i18n="ok">OK</button>
   </div>
 </section>
 
+<script src="i18n.js"></script>
 <script src="engine.js"></script>
 <script src="app.js"></script>
 </body>

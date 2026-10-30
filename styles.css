@@ -399,3 +399,28 @@ body.busy .level, body.busy .daily { pointer-events: none; opacity: .6; }
 .steps { margin: 10px 0 0; padding: 0 0 0 22px; color: var(--ink2); font-size: 16px; line-height: 1.7; align-self: stretch; }
 .steps b { color: var(--ink); font-weight: 600; }
 .steps svg { vertical-align: -3px; color: var(--blue); }
+
+.select {
+  appearance: none; -webkit-appearance: none;
+  font: inherit; font-size: 16px; color: var(--blue);
+  background: var(--key); border: 1px solid var(--glass-edge2); border-radius: 999px;
+  padding: 8px 34px 8px 16px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5' fill='none' stroke='%238e8e94' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center; background-size: 18px;
+}
+
+/* mistakes: loud */
+.cell.oops { animation: oops .7s ease-out; }
+@keyframes oops { 0% { background: var(--red); color: #fff; } 60% { background: var(--red); color: #fff; } 100% { } }
+.cell.wrong { color: var(--red); background: rgba(255, 59, 48, 0.18); font-weight: 600; }
+.game-sub.bump { animation: bump .5s ease-out; color: var(--red); }
+@keyframes bump { 0% { transform: scale(1.4); } 100% { transform: scale(1); } }
+
+/* game over: sheet over the board, board stays visible */
+.overlay {
+  position: fixed; inset: 0; z-index: 20;
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 0 10px calc(env(safe-area-inset-bottom) + 10px);
+  background: rgba(0,0,0,.35);
+}
+.overlay .sheet-card { max-width: 520px; }

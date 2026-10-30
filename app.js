@@ -4,12 +4,22 @@
 
   const E = self.SudokuEngine;
   const PEERS = E.PEERS;
-  const LEVEL_NAME = { kid: 'Kid', easy: 'Easy', medium: 'Medium', hard: 'Hard', expert: 'Expert', extreme: 'Extreme', daily: 'Daily' };
+  const I18N = self.I18N;
+  let LANG = 'en';
+  const t = (k, vars) => { let s = (I18N[LANG] && I18N[LANG][k]) || I18N.en[k] || k; if (vars) for (const v in vars) s = s.replace('{' + v + '}', vars[v]); return s; };
+  const LEVEL_NAME = new Proxy({}, { get: (_, k) => t(k) });
+  function applyLang(l) {
+    LANG = I18N[l] ? l : 'en';
+    document.documentElement.lang = LANG;
+    document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+    if (S && !screens.game.hidden) { $('#levelLabel').textContent = S.level === 'daily' ? `${t('daily')} ${prettyDate(S.dateKey)}` : LEVEL_NAME[S.level]; render(); }
+  }
   const MAX_MISTAKES = 3;
 
   // ---------- DOM ----------
   const $ = s => document.querySelector(s);
   const screens = { home: $('#home'), game: $('#game'), win: $('#win'), over: $('#over'), stats: $('#stats'), settings: $('#settings'), confirm: $('#confirm'), install: $('#install') };
+  const hideOver = () => { $('#over').hidden = true; };
   const boardEl = $('#board');
   const cells = [];
 
@@ -39,7 +49,7 @@
 
   const todayKey = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
   const keyToSeed = k => +k.replace(/-/g, '');
-  const prettyDate = k => new Date(k + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  const prettyDate = k => new Date(k + 'T12:00:00').toLocaleDateString(LANG, { month: 'short', day: 'numeric' });
   const yesterdayKey = () => { const d = new Date(); d.setDate(d.getDate() - 1); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 
   // ---------- Puzzle source (worker with fallback) ----------
@@ -103,7 +113,7 @@
     document.querySelectorAll('#pad button').forEach(b => b.classList.toggle('done', counts[+b.dataset.n] >= 9));
     $('#undoBtn').disabled = history.length === 0;
     $('#notesBtn').classList.toggle('on', notesMode);
-    $('#mistakes').textContent = OPT.limit ? `Mistakes ${S.mistakes}/${MAX_MISTAKES}` : (S.mistakes ? `Mistakes ${S.mistakes}` : '');
+    $('#mistakes').textContent = OPT.limit ? `${t('mistakes')} ${S.mistakes}/${MAX_MISTAKES}` : (S.mistakes ? `${t('mistakes')} ${S.mistakes}` : '');
     $('#mistakes').classList.toggle('warn', OPT.limit && S.mistakes >= MAX_MISTAKES - 1);
     $('#timer').hidden = !OPT.timer;
     $('.game-title .dot').hidden = !OPT.timer;
@@ -132,8 +142,11 @@
         } else {
           S.mistakes++;
           buzz([40, 30, 40]);
-          cells[selected].classList.add('shake');
-          setTimeout(() => cells[selected].classList.remove('shake'), 400);
+          const c = cells[selected];
+          c.classList.add('shake', 'oops');
+          setTimeout(() => c.classList.remove('shake', 'oops'), 700);
+          $('#mistakes').classList.add('bump');
+          setTimeout(() => $('#mistakes').classList.remove('bump'), 500);
         }
       }
     }
@@ -188,14 +201,18 @@
     stopTimer();
     buzz([80, 40, 80]);
     const snap = S;
-    S = null; save();
+    paused = true;                 // board stays visible, input locked, wrong cells stay red
+    selected = -1; render();
+    store.set('sudoku.game', null);
+    const close = () => { $('#over').hidden = true; S = null; };
     $('#retryBtn').onclick = () => {
+      close();
       S = { ...snap, grid: snap.puzzle.slice(), notes: new Array(81).fill(0), time: 0, hints: 0, mistakes: 0 };
       history = []; selected = -1; notesMode = false;
       enterGame();
     };
-    $('#overNewBtn').onclick = () => snap.level === 'daily' ? show('home') : start(snap.level);
-    setTimeout(() => show('over'), 300);
+    $('#overNewBtn').onclick = () => { close(); snap.level === 'daily' ? show('home') : start(snap.level); };
+    setTimeout(() => { $('#over').hidden = false; }, 500);
   }
 
   function checkWin() {
@@ -216,12 +233,12 @@
       }
     }
     saveStats(st);
-    $('#winLevel').textContent = S.level === 'daily' ? `Daily ${prettyDate(S.dateKey)}` : LEVEL_NAME[S.level];
+    $('#winLevel').textContent = S.level === 'daily' ? `${t('daily')} ${prettyDate(S.dateKey)}` : LEVEL_NAME[S.level];
     $('#winTime').textContent = fmt(S.time);
     $('#winBest').hidden = !(isBest && L.won > 1);
     const lvl = S.level;
     S = null; save();
-    $('#againBtn').textContent = lvl === 'daily' ? 'Home' : 'Play again';
+    $('#againBtn').textContent = lvl === 'daily' ? t('home') : t('again');
     $('#againBtn').onclick = () => lvl === 'daily' ? show('home') : start(lvl);
     setTimeout(() => show('win'), 350);
   }
@@ -236,6 +253,7 @@
 
   // ---------- Screens ----------
   function show(name) {
+    hideOver();
     for (const k in screens) screens[k].hidden = k !== name;
     if (name === 'home') refreshHome();
   }
@@ -244,21 +262,21 @@
     const g = load();
     const st = stats();
     $('#continueBtn').hidden = !g;
-    if (g) $('#continueMeta').textContent = `${g.level === 'daily' ? 'Daily' : LEVEL_NAME[g.level]} · ${fmt(g.time)}`;
+    if (g) $('#continueMeta').textContent = `${LEVEL_NAME[g.level]} · ${fmt(g.time)}`;
     const map = { kid: 'bk', easy: 'be', medium: 'bm', hard: 'bh', expert: 'bx', extreme: 'bz' };
     for (const k in map) { const L = st.levels[k]; $('#' + map[k]).textContent = L && L.best != null ? fmt(L.best) : ''; }
     const tk = todayKey();
     $('#dailyDate').textContent = prettyDate(tk);
     const done = st.daily.done[tk];
-    $('#dailyRight').textContent = done != null ? `Solved · ${fmt(done)}` : (st.daily.streak > 0 && st.daily.last === yesterdayKey() ? `${st.daily.streak} day streak` : '');
+    $('#dailyRight').textContent = done != null ? `${t('solvedTime')} · ${fmt(done)}` : (st.daily.streak > 0 && st.daily.last === yesterdayKey() ? `${st.daily.streak} ${t('streak')}` : '');
     $('#dailyBtn').classList.toggle('done', done != null);
   }
 
   function start(level, seed, dateKey) {
     const g = load();
     if (g) {
-      const name = g.level === 'daily' ? `Daily ${prettyDate(g.dateKey)}` : LEVEL_NAME[g.level];
-      $('#confirmText').textContent = `Your ${name} game (${fmt(g.time)}) will be lost.`;
+      const name = g.level === 'daily' ? `${t('daily')} ${prettyDate(g.dateKey)}` : LEVEL_NAME[g.level];
+      $('#confirmText').textContent = t('confirmText', { name, time: fmt(g.time) });
       $('#confirmYes').onclick = () => { store.set('sudoku.game', null); show('home'); begin(level, seed, dateKey); };
       $('#confirmNo').onclick = () => resume();
       show('confirm');
@@ -268,11 +286,11 @@
   }
 
   async function begin(level, seed, dateKey) {
-    $('#homeSub').textContent = 'Making your puzzle…';
+    $('#homeSub').textContent = t('making');
     document.body.classList.add('busy');
     const r = await makePuzzle(level === 'daily' ? 'medium' : level, seed);
     document.body.classList.remove('busy');
-    $('#homeSub').textContent = 'Pick a level';
+    $('#homeSub').textContent = t('pick');
     S = { level, puzzle: r.puzzle, solution: r.solution, grid: r.puzzle.slice(), notes: new Array(81).fill(0), time: 0, hints: 0, mistakes: 0, dateKey: dateKey || null };
     history = []; selected = -1; notesMode = false;
     enterGame();
@@ -294,7 +312,7 @@
   }
 
   function enterGame() {
-    $('#levelLabel').textContent = S.level === 'daily' ? `Daily ${prettyDate(S.dateKey)}` : LEVEL_NAME[S.level];
+    $('#levelLabel').textContent = S.level === 'daily' ? `${t('daily')} ${prettyDate(S.dateKey)}` : LEVEL_NAME[S.level];
     $('#timer').textContent = fmt(S.time);
     setPaused(false);
     show('game');
@@ -322,10 +340,11 @@
 
   function showSettings() {
     for (const [id, key] of OPT_IDS) $('#' + id).checked = !!OPT[key];
+    $('#optLang').value = LANG;
     show('settings');
   }
 
-  function goHome() { stopTimer(); if (S) save(); S = null; show('home'); }
+  function goHome() { stopTimer(); if (S && !$('#over').hidden) { S = null; } if (S) save(); S = null; show('home'); }
 
   function showStats() {
     const st = stats();
@@ -339,6 +358,12 @@
     }
     show('stats');
   }
+
+  // ---------- Language ----------
+  const sel = $('#optLang');
+  for (const k in I18N) { const o = document.createElement('option'); o.value = k; o.textContent = I18N[k].name; sel.appendChild(o); }
+  sel.addEventListener('change', () => { applyLang(sel.value); store.set('sudoku.lang', sel.value); });
+  applyLang(store.get('sudoku.lang', (navigator.language || 'en').slice(0, 2)));
 
   // ---------- Theme ----------
   function applyTheme(t) {
