@@ -13,13 +13,13 @@
   --blue-soft2: rgba(0, 122, 255, 0.22);
   --red: #ff3b30;
   --green: #34c759;
-  --glass: rgba(255, 255, 255, 0.55);
-  --glass2: rgba(255, 255, 255, 0.72);
-  --glass-edge: rgba(255, 255, 255, 0.9);
-  --glass-edge2: rgba(255, 255, 255, 0.35);
-  --glass-shadow: 0 1px 1px rgba(255,255,255,.6) inset, 0 -1px 1px rgba(0,0,0,.04) inset, 0 10px 30px rgba(20, 30, 60, 0.12);
-  --press: rgba(0, 0, 0, 0.06);
-  --radius: 22px;
+  --glass: linear-gradient(180deg, #ffffff, #f7f7fa);
+  --glass2: #ececf1;
+  --key: #ffffff;
+  --glass-edge2: rgba(0, 0, 0, 0.06);
+  --glass-shadow: 0 1px 0 rgba(255,255,255,.9) inset, 0 6px 20px rgba(0, 0, 0, 0.06);
+  --press: rgba(0, 0, 0, 0.07);
+  --radius: 34px;
   color-scheme: light;
 }
 
@@ -39,12 +39,12 @@
     --blue-soft2: rgba(10, 132, 255, 0.36);
     --red: #ff453a;
     --green: #30d158;
-    --glass: rgba(255, 255, 255, 0.06);
-    --glass2: rgba(255, 255, 255, 0.11);
-    --glass-edge: rgba(255, 255, 255, 0.22);
-    --glass-edge2: rgba(255, 255, 255, 0.14);
-    --glass-shadow: 0 1px 1px rgba(255,255,255,.12) inset, 0 -1px 1px rgba(0,0,0,.3) inset, 0 10px 30px rgba(0, 0, 0, 0.45);
-    --press: rgba(255, 255, 255, 0.10);
+    --glass: linear-gradient(180deg, #2c2c2e, #1a1a1c);
+    --glass2: #3a3a3c;
+    --key: linear-gradient(180deg, #3a3a3c, #2a2a2c);
+    --glass-edge2: rgba(255, 255, 255, 0.07);
+    --glass-shadow: 0 1px 0 rgba(255,255,255,.08) inset, 0 8px 24px rgba(0, 0, 0, 0.5);
+    --press: rgba(255, 255, 255, 0.12);
     color-scheme: dark;
   }
 }
@@ -63,12 +63,12 @@
   --blue-soft2: rgba(10, 132, 255, 0.36);
   --red: #ff453a;
   --green: #30d158;
-  --glass: rgba(255, 255, 255, 0.06);
-  --glass2: rgba(255, 255, 255, 0.11);
-  --glass-edge: rgba(255, 255, 255, 0.22);
-  --glass-edge2: rgba(255, 255, 255, 0.14);
-  --glass-shadow: 0 1px 1px rgba(255,255,255,.12) inset, 0 -1px 1px rgba(0,0,0,.3) inset, 0 10px 30px rgba(0, 0, 0, 0.45);
-  --press: rgba(255, 255, 255, 0.10);
+  --glass: linear-gradient(180deg, #2c2c2e, #1a1a1c);
+  --glass2: #3a3a3c;
+  --key: linear-gradient(180deg, #3a3a3c, #2a2a2c);
+  --glass-edge2: rgba(255, 255, 255, 0.07);
+  --glass-shadow: 0 1px 0 rgba(255,255,255,.08) inset, 0 8px 24px rgba(0, 0, 0, 0.5);
+  --press: rgba(255, 255, 255, 0.12);
   color-scheme: dark;
 }
 
@@ -87,18 +87,6 @@ body {
   position: relative;
   isolation: isolate;
 }
-/* soft colour field behind the glass */
-body::before, body::after {
-  content: ""; position: fixed; z-index: -1; border-radius: 50%; filter: blur(70px); pointer-events: none;
-}
-body::before {
-  width: 70vmax; height: 70vmax; left: -20vmax; top: -25vmax;
-  background: radial-gradient(circle at 40% 40%, var(--blob1), transparent 65%);
-}
-body::after {
-  width: 70vmax; height: 70vmax; right: -25vmax; bottom: -25vmax;
-  background: radial-gradient(circle at 60% 60%, var(--blob2), transparent 60%), radial-gradient(circle at 20% 80%, var(--blob3), transparent 60%);
-}
 
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 button:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; border-radius: 10px; }
@@ -107,12 +95,8 @@ button:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; bord
 /* the glass material */
 .glass {
   background: var(--glass);
-  -webkit-backdrop-filter: blur(22px) saturate(170%);
-  backdrop-filter: blur(22px) saturate(170%);
   border: 1px solid var(--glass-edge2);
   box-shadow: var(--glass-shadow);
-  background-image: linear-gradient(135deg, var(--glass-edge) 0%, transparent 40%);
-  background-blend-mode: soft-light;
 }
 
 .screen {
@@ -130,11 +114,10 @@ button:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; bord
   color: var(--ink);
   background: var(--glass);
   border: 1px solid var(--glass-edge2);
-  -webkit-backdrop-filter: blur(22px) saturate(170%);
-  backdrop-filter: blur(22px) saturate(170%);
+  box-shadow: var(--glass-shadow);
   transition: transform .15s, background .15s;
 }
-.icon-btn:active { transform: scale(.92); background: var(--glass2); }
+.icon-btn:active { transform: scale(.92); filter: brightness(1.3); }
 #themeBtn .moon { display: none; }
 :root[data-theme="dark"] #themeBtn .moon { display: block; }
 :root[data-theme="dark"] #themeBtn .sun { display: none; }
@@ -161,12 +144,12 @@ h1 { margin: 0; text-align: center; font-size: 40px; font-weight: 700; letter-sp
 .levels { display: flex; flex-direction: column; gap: 10px; }
 .level {
   border-radius: var(--radius);
-  padding: 18px 20px;
+  padding: 22px 24px;
   text-align: left;
   display: flex; flex-direction: column; gap: 3px;
   transition: transform .12s, background .12s;
 }
-.level:active { transform: scale(.98); background: var(--glass2); }
+.level:active { transform: scale(.98); filter: brightness(1.25); }
 .level-name { font-size: 20px; font-weight: 600; }
 .level-desc { font-size: 15px; color: var(--ink2); }
 
@@ -202,9 +185,9 @@ h1 { margin: 0; text-align: center; font-size: 40px; font-weight: 700; letter-sp
   display: grid;
   grid-template-columns: repeat(9, 1fr);
   grid-template-rows: repeat(9, 1fr);
-  border-radius: 20px;
+  border-radius: 28px;
   overflow: hidden;
-  padding: 6px;
+  padding: 8px;
 }
 .cell {
   position: relative;
@@ -246,12 +229,12 @@ h1 { margin: 0; text-align: center; font-size: 40px; font-weight: 700; letter-sp
 .pause-cover {
   position: absolute; inset: 0;
   display: grid; place-items: center;
-  border-radius: 20px;
+  border-radius: 28px;
 }
 
 .tools {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
-  border-radius: 20px; padding: 4px;
+  border-radius: 24px; padding: 6px;
 }
 .tool {
   display: flex; flex-direction: column; align-items: center; gap: 4px;
@@ -267,25 +250,27 @@ h1 { margin: 0; text-align: center; font-size: 40px; font-weight: 700; letter-sp
 .tool:disabled { opacity: .35; }
 
 .pad {
-  display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px;
-  border-radius: 22px; padding: 6px;
+  display: grid; grid-template-columns: repeat(9, 1fr); gap: 5px;
+  border-radius: 26px; padding: 7px;
 }
 .pad button {
-  aspect-ratio: 0.62;
-  border-radius: 14px;
+  aspect-ratio: 0.66;
+  border-radius: 13px;
+  background: var(--key);
+  border: 1px solid var(--glass-edge2);
   font-size: clamp(22px, 7.5vw, 34px);
-  font-weight: 400;
-  color: var(--blue);
-  transition: background .08s, transform .08s;
+  font-weight: 500;
+  color: var(--ink);
+  transition: filter .08s, transform .08s;
 }
-.pad button:active { background: var(--press); transform: scale(.92); }
+.pad button:active { filter: brightness(1.4); transform: scale(.92); }
 .pad button.done { opacity: .22; }
 
 /* WIN sheet */
 .sheet { justify-content: center; align-items: center; }
 .sheet-card {
   width: 100%;
-  border-radius: 30px;
+  border-radius: 40px;
   padding: 36px 24px 20px;
   display: flex; flex-direction: column; align-items: center; gap: 8px;
   animation: rise .4s cubic-bezier(.2,.8,.2,1);
