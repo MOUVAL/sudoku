@@ -250,16 +250,17 @@ h1 { margin: 0; text-align: center; font-size: 40px; font-weight: 700; letter-sp
 .tool:disabled { opacity: .35; }
 
 .pad {
-  display: grid; grid-template-columns: repeat(9, 1fr); gap: 5px;
-  border-radius: 999px; padding: 7px;
+  display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px;
+  border-radius: 999px; padding: 6px 12px;
 }
 .pad button {
   aspect-ratio: 1;
   border-radius: 50%;
   background: var(--key);
   border: 1px solid var(--glass-edge2);
-  font-size: clamp(22px, 7.5vw, 34px);
+  font-size: clamp(18px, 5.6vw, 28px);
   font-weight: 500;
+  min-width: 0;
   color: var(--ink);
   transition: filter .08s, transform .08s;
 }
