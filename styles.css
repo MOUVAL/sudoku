@@ -183,6 +183,8 @@ h1 { margin: 0; text-align: center; font-size: 34px; font-weight: 700; letter-sp
   grid-template-rows: repeat(9, 1fr);
   border-radius: 16px;
   overflow: hidden;
+  clip-path: inset(0 round 16px);
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
   padding: 2px;
 }
 .cell {
@@ -384,3 +386,9 @@ body.busy .level, body.busy .daily { pointer-events: none; opacity: .6; }
 .tools:has(.tool:not([hidden]):only-child) { justify-items: center; }
 
 #pauseBtn[hidden] { display: grid !important; visibility: hidden; }
+
+/* corner cells follow the board radius so highlights never poke out */
+.cell:nth-child(1) { border-top-left-radius: 14px; }
+.cell:nth-child(9) { border-top-right-radius: 14px; }
+.cell:nth-child(73) { border-bottom-left-radius: 14px; }
+.cell:nth-child(81) { border-bottom-right-radius: 14px; }
