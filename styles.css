@@ -234,12 +234,12 @@ h1 { margin: 0; text-align: center; font-size: 40px; font-weight: 700; letter-sp
 
 .tools {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
-  border-radius: 24px; padding: 6px;
+  border-radius: 999px; padding: 6px 10px;
 }
 .tool {
   display: flex; flex-direction: column; align-items: center; gap: 4px;
   padding: 10px 4px;
-  border-radius: 16px;
+  border-radius: 999px;
   color: var(--ink2);
   font-size: 12px; font-weight: 500;
   transition: background .12s, color .12s, transform .12s;
@@ -251,11 +251,11 @@ h1 { margin: 0; text-align: center; font-size: 40px; font-weight: 700; letter-sp
 
 .pad {
   display: grid; grid-template-columns: repeat(9, 1fr); gap: 5px;
-  border-radius: 26px; padding: 7px;
+  border-radius: 999px; padding: 7px;
 }
 .pad button {
-  aspect-ratio: 0.66;
-  border-radius: 13px;
+  aspect-ratio: 1;
+  border-radius: 50%;
   background: var(--key);
   border: 1px solid var(--glass-edge2);
   font-size: clamp(22px, 7.5vw, 34px);
