@@ -19,7 +19,7 @@
   // ---------- DOM ----------
   const $ = s => document.querySelector(s);
   const screens = { home: $('#home'), game: $('#game'), win: $('#win'), over: $('#over'), stats: $('#stats'), settings: $('#settings'), confirm: $('#confirm'), install: $('#install') };
-  const hideOver = () => { $('#over').hidden = true; };
+  const hideOver = () => { if (!$('#over').hidden) { $('#over').hidden = true; $('#pad').hidden = false; applyTools(); } };
   const boardEl = $('#board');
   const cells = [];
 
@@ -204,7 +204,7 @@
     paused = true;                 // board stays visible, input locked, wrong cells stay red
     selected = -1; render();
     store.set('sudoku.game', null);
-    const close = () => { $('#over').hidden = true; S = null; };
+    const close = () => { $('#over').hidden = true; $('#pad').hidden = false; applyTools(); S = null; };
     $('#retryBtn').onclick = () => {
       close();
       S = { ...snap, grid: snap.puzzle.slice(), notes: new Array(81).fill(0), time: 0, hints: 0, mistakes: 0 };
@@ -212,7 +212,7 @@
       enterGame();
     };
     $('#overNewBtn').onclick = () => { close(); snap.level === 'daily' ? show('home') : start(snap.level); };
-    setTimeout(() => { $('#over').hidden = false; }, 500);
+    setTimeout(() => { $('#over').hidden = false; $('#tools').hidden = true; $('#pad').hidden = true; }, 500);
   }
 
   function checkWin() {

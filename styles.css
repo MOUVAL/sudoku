@@ -416,16 +416,12 @@ body.busy .level, body.busy .daily { pointer-events: none; opacity: .6; }
 .game-sub.bump { animation: bump .5s ease-out; color: var(--red); }
 @keyframes bump { 0% { transform: scale(1.4); } 100% { transform: scale(1); } }
 
-/* game over: sheet over the board, board stays visible */
-.overlay {
-  position: fixed; inset: 0; z-index: 20;
-  display: flex; align-items: flex-start; justify-content: center;
-  padding: calc(env(safe-area-inset-top) + 64px) 10px 0;
-  background: transparent; pointer-events: none;
-}
-.overlay .sheet-card { max-width: 520px; pointer-events: auto; padding: 22px 20px 12px; gap: 4px; }
-.overlay .check { width: 56px; height: 56px; margin-bottom: 4px; }
-.overlay .check svg { width: 30px; height: 30px; }
-.overlay h2 { font-size: 24px; }
-.overlay .big { margin-top: 10px; padding: 13px; }
-.overlay .plain { padding: 10px 22px; }
+
+/* game over: replaces the tools and pad, board stays fully visible */
+.over { border-radius: 26px; padding: 16px 18px 10px; display: flex; flex-direction: column; gap: 8px; animation: rise .35s cubic-bezier(.2,.8,.2,1); }
+.over-text { display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
+.over-text b { font-size: 20px; font-weight: 700; color: var(--red); }
+.over-text span { font-size: 14px; color: var(--ink2); }
+.over-actions { display: flex; flex-direction: column; align-items: center; }
+.over .big { margin-top: 6px; padding: 14px; }
+.over .plain { padding: 10px 22px; }

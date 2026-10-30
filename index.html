@@ -122,6 +122,16 @@
     <button data-n="4">4</button><button data-n="5">5</button><button data-n="6">6</button>
     <button data-n="7">7</button><button data-n="8">8</button><button data-n="9">9</button>
   </div>
+  <div id="over" class="over glass" hidden>
+    <div class="over-text">
+      <b data-i18n="three">Three mistakes</b>
+      <span data-i18n="gotAway">The wrong numbers are marked in red.</span>
+    </div>
+    <div class="over-actions">
+      <button class="big" id="retryBtn" data-i18n="retry">Retry this puzzle</button>
+      <button class="plain" id="overNewBtn" data-i18n="newPuzzle">New puzzle</button>
+    </div>
+  </div>
 </section>
 
 <!-- WIN -->
@@ -138,18 +148,6 @@
   </div>
 </section>
 
-<!-- GAME OVER -->
-<section id="over" class="overlay" hidden>
-  <div class="sheet-card glass">
-    <div class="check bad" aria-hidden="true">
-      <svg viewBox="0 0 24 24" width="44" height="44"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
-    </div>
-    <h2 data-i18n="three">Three mistakes</h2>
-    <p class="win-meta" data-i18n="gotAway">That one got away.</p>
-    <button class="big" id="retryBtn" data-i18n="retry">Retry this puzzle</button>
-    <button class="plain" id="overNewBtn" data-i18n="newPuzzle">New puzzle</button>
-  </div>
-</section>
 
 <!-- STATS -->
 <section id="stats" class="screen sheet" hidden>
