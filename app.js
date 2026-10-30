@@ -30,7 +30,7 @@
   const stats = () => store.get('sudoku.stats2', { levels: {}, daily: { streak: 0, last: null, done: {} } });
   const saveStats = st => store.set('sudoku.stats2', st);
 
-  const OPT_DEFAULT = { highlight: true, mistakes: true, limit: true, timer: true };
+  const OPT_DEFAULT = { highlight: true, mistakes: true, limit: true, timer: true, undo: true, erase: true, notes: true, auto: true, hint: true };
   let OPT = { ...OPT_DEFAULT, ...store.get('sudoku.opts', {}) };
   const saveOpts = () => store.set('sudoku.opts', OPT);
 
@@ -296,11 +296,19 @@
     enterGame();
   }
 
+  const OPT_IDS = [['optHighlight', 'highlight'], ['optMistakes', 'mistakes'], ['optLimit', 'limit'], ['optTimer', 'timer'], ['optUndo', 'undo'], ['optErase', 'erase'], ['optNotes', 'notes'], ['optAuto', 'auto'], ['optHint', 'hint']];
+  const TOOL_IDS = { undo: 'undoBtn', erase: 'eraseBtn', notes: 'notesBtn', auto: 'autoBtn', hint: 'hintBtn' };
+
+  function applyTools() {
+    let n = 0;
+    for (const k in TOOL_IDS) { const on = !!OPT[k]; $('#' + TOOL_IDS[k]).hidden = !on; if (on) n++; }
+    $('#tools').hidden = n === 0;
+    $('#tools').style.gridTemplateColumns = `repeat(${Math.max(n, 1)}, 1fr)`;
+    if (!OPT.notes) notesMode = false;
+  }
+
   function showSettings() {
-    $('#optHighlight').checked = OPT.highlight;
-    $('#optMistakes').checked = OPT.mistakes;
-    $('#optLimit').checked = OPT.limit;
-    $('#optTimer').checked = OPT.timer;
+    for (const [id, key] of OPT_IDS) $('#' + id).checked = !!OPT[key];
     show('settings');
   }
 
@@ -360,8 +368,10 @@
   $('#restartBtn').addEventListener('click', restart);
   $('#settingsBtn').addEventListener('click', showSettings);
   $('#settingsClose').addEventListener('click', () => show('home'));
-  for (const [id, key] of [['optHighlight', 'highlight'], ['optMistakes', 'mistakes'], ['optLimit', 'limit'], ['optTimer', 'timer']])
-    $('#' + id).addEventListener('change', e => { OPT[key] = e.target.checked; saveOpts(); });
+  for (const [id, key] of OPT_IDS)
+    $('#' + id).addEventListener('change', e => { OPT[key] = e.target.checked; saveOpts(); applyTools(); });
+  applyTools();
+  if ('serviceWorker' in navigator) { let reloaded = false; navigator.serviceWorker.addEventListener('controllerchange', () => { if (!reloaded) { reloaded = true; if (!S) location.reload(); } }); }
   $('#undoBtn').addEventListener('click', undo);
   $('#eraseBtn').addEventListener('click', erase);
   $('#notesBtn').addEventListener('click', () => { notesMode = !notesMode; render(); });

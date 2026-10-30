@@ -94,7 +94,7 @@
     </div>
   </div>
 
-  <div class="tools glass">
+  <div class="tools glass" id="tools">
     <button class="tool" id="undoBtn">
       <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M9 14 4 9l5-5M4 9h9a6 6 0 0 1 0 12h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span>Undo</span>
@@ -173,6 +173,14 @@
       <label class="setting"><span><b>Show mistakes</b><small>Wrong numbers turn red</small></span><input type="checkbox" id="optMistakes" class="switch"></label>
       <label class="setting"><span><b>Mistake limit</b><small>Three mistakes end the game</small></span><input type="checkbox" id="optLimit" class="switch"></label>
       <label class="setting"><span><b>Timer</b><small>Show the clock while playing</small></span><input type="checkbox" id="optTimer" class="switch"></label>
+    </div>
+    <p class="setting-head">Tools</p>
+    <div class="setting-list">
+      <label class="setting"><span><b>Undo</b></span><input type="checkbox" id="optUndo" class="switch"></label>
+      <label class="setting"><span><b>Erase</b></span><input type="checkbox" id="optErase" class="switch"></label>
+      <label class="setting"><span><b>Notes</b></span><input type="checkbox" id="optNotes" class="switch"></label>
+      <label class="setting"><span><b>Auto notes</b></span><input type="checkbox" id="optAuto" class="switch"></label>
+      <label class="setting"><span><b>Hint</b></span><input type="checkbox" id="optHint" class="switch"></label>
     </div>
     <button class="plain" id="settingsClose">Done</button>
   </div>

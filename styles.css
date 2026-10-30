@@ -369,3 +369,6 @@ body.busy .level, body.busy .daily { pointer-events: none; opacity: .6; }
 }
 .switch:checked { background: var(--green); }
 .switch:checked::after { transform: translateX(20px); }
+
+.setting-head { margin: 14px 4px 0; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink3); }
+.tools:has(.tool:not([hidden]):only-child) { justify-items: center; }
