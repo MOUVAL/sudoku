@@ -392,3 +392,5 @@ body.busy .level, body.busy .daily { pointer-events: none; opacity: .6; }
 .cell:nth-child(9) { border-top-right-radius: 14px; }
 .cell:nth-child(73) { border-bottom-left-radius: 14px; }
 .cell:nth-child(81) { border-bottom-right-radius: 14px; }
+
+#restartBtn { color: var(--red); }
