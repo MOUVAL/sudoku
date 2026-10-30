@@ -9,7 +9,7 @@
 
   // ---------- DOM ----------
   const $ = s => document.querySelector(s);
-  const screens = { home: $('#home'), game: $('#game'), win: $('#win'), over: $('#over'), stats: $('#stats'), settings: $('#settings') };
+  const screens = { home: $('#home'), game: $('#game'), win: $('#win'), over: $('#over'), stats: $('#stats'), settings: $('#settings'), confirm: $('#confirm') };
   const boardEl = $('#board');
   const cells = [];
 
@@ -254,7 +254,20 @@
     $('#dailyBtn').classList.toggle('done', done != null);
   }
 
-  async function start(level, seed, dateKey) {
+  function start(level, seed, dateKey) {
+    const g = load();
+    if (g) {
+      const name = g.level === 'daily' ? `Daily ${prettyDate(g.dateKey)}` : LEVEL_NAME[g.level];
+      $('#confirmText').textContent = `Your ${name} game (${fmt(g.time)}) will be lost.`;
+      $('#confirmYes').onclick = () => { store.set('sudoku.game', null); show('home'); begin(level, seed, dateKey); };
+      $('#confirmNo').onclick = () => resume();
+      show('confirm');
+      return;
+    }
+    begin(level, seed, dateKey);
+  }
+
+  async function begin(level, seed, dateKey) {
     $('#homeSub').textContent = 'Making your puzzle…';
     document.body.classList.add('busy');
     const r = await makePuzzle(level === 'daily' ? 'medium' : level, seed);
