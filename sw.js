@@ -1,4 +1,4 @@
-const CACHE = 'sudoku-v6';
+const CACHE = 'sudoku-v7';
 const FILES = [
   './', 'index.html', 'styles.css', 'app.js', 'engine.js', 'worker.js', 'manifest.webmanifest',
   'icons/icon.svg', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-512-maskable.png'

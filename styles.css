@@ -39,12 +39,12 @@
     --blue-soft2: rgba(10, 132, 255, 0.36);
     --red: #ff453a;
     --green: #30d158;
-    --glass: linear-gradient(180deg, #1b1b1d, #101012);
-    --glass2: #262628;
-    --key: linear-gradient(180deg, #2a2a2c, #1c1c1e);
-    --glass-edge2: rgba(255, 255, 255, 0.06);
+    --glass: linear-gradient(180deg, #141416, #0a0a0b);
+    --glass2: #1e1e20;
+    --key: linear-gradient(180deg, #202022, #141416);
+    --glass-edge2: rgba(255, 255, 255, 0.05);
     --glass-shadow: 0 1px 0 rgba(255,255,255,.08) inset, 0 8px 24px rgba(0, 0, 0, 0.5);
-    --press: rgba(255, 255, 255, 0.12);
+    --press: rgba(255, 255, 255, 0.09);
     color-scheme: dark;
   }
 }
@@ -63,12 +63,12 @@
   --blue-soft2: rgba(10, 132, 255, 0.36);
   --red: #ff453a;
   --green: #30d158;
-  --glass: linear-gradient(180deg, #1b1b1d, #101012);
-  --glass2: #262628;
-  --key: linear-gradient(180deg, #2a2a2c, #1c1c1e);
-  --glass-edge2: rgba(255, 255, 255, 0.06);
+  --glass: linear-gradient(180deg, #141416, #0a0a0b);
+  --glass2: #1e1e20;
+  --key: linear-gradient(180deg, #202022, #141416);
+  --glass-edge2: rgba(255, 255, 255, 0.05);
   --glass-shadow: 0 1px 0 rgba(255,255,255,.08) inset, 0 8px 24px rgba(0, 0, 0, 0.5);
-  --press: rgba(255, 255, 255, 0.12);
+  --press: rgba(255, 255, 255, 0.09);
   color-scheme: dark;
 }
 
