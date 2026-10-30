@@ -419,8 +419,13 @@ body.busy .level, body.busy .daily { pointer-events: none; opacity: .6; }
 /* game over: sheet over the board, board stays visible */
 .overlay {
   position: fixed; inset: 0; z-index: 20;
-  display: flex; align-items: flex-end; justify-content: center;
-  padding: 0 10px calc(env(safe-area-inset-bottom) + 10px);
-  background: rgba(0,0,0,.35);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: calc(env(safe-area-inset-top) + 64px) 10px 0;
+  background: transparent; pointer-events: none;
 }
-.overlay .sheet-card { max-width: 520px; }
+.overlay .sheet-card { max-width: 520px; pointer-events: auto; padding: 22px 20px 12px; gap: 4px; }
+.overlay .check { width: 56px; height: 56px; margin-bottom: 4px; }
+.overlay .check svg { width: 30px; height: 30px; }
+.overlay h2 { font-size: 24px; }
+.overlay .big { margin-top: 10px; padding: 13px; }
+.overlay .plain { padding: 10px 22px; }
