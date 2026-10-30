@@ -9,7 +9,7 @@
 
   // ---------- DOM ----------
   const $ = s => document.querySelector(s);
-  const screens = { home: $('#home'), game: $('#game'), win: $('#win'), over: $('#over'), stats: $('#stats'), settings: $('#settings'), confirm: $('#confirm') };
+  const screens = { home: $('#home'), game: $('#game'), win: $('#win'), over: $('#over'), stats: $('#stats'), settings: $('#settings'), confirm: $('#confirm'), install: $('#install') };
   const boardEl = $('#board');
   const cells = [];
 
@@ -358,12 +358,12 @@
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
   const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; $('#installBtn').hidden = false; });
-  if (isIOS && !standalone) $('#installBtn').hidden = false;
+  if (!standalone) $('#installBtn').hidden = false;
   $('#installBtn').addEventListener('click', async () => {
     if (installEvt) { installEvt.prompt(); await installEvt.userChoice; installEvt = null; $('#installBtn').hidden = true; }
-    else if (isIOS) $('#iosHint').hidden = false;
+    else show('install');
   });
-  $('#iosHintClose').addEventListener('click', () => { $('#iosHint').hidden = true; });
+  $('#installClose').addEventListener('click', () => show('home'));
   window.addEventListener('appinstalled', () => { $('#installBtn').hidden = true; });
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 
