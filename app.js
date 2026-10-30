@@ -396,5 +396,13 @@
   document.addEventListener('visibilitychange', () => { if (document.hidden && S && !screens.game.hidden) setPaused(true); });
   window.addEventListener('pagehide', () => { if (S) save(); });
 
+  // no pinch zoom, no double-tap zoom, no rubber-band bounce
+  document.addEventListener('gesturestart', e => e.preventDefault(), { passive: false });
+  document.addEventListener('gesturechange', e => e.preventDefault(), { passive: false });
+  document.addEventListener('touchmove', e => { if (e.scale && e.scale !== 1) e.preventDefault(); }, { passive: false });
+  let lastTouch = 0;
+  document.addEventListener('touchend', e => { const now = Date.now(); if (now - lastTouch < 300) e.preventDefault(); lastTouch = now; }, { passive: false });
+  document.addEventListener('dblclick', e => e.preventDefault());
+
   show('home');
 })();

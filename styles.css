@@ -73,7 +73,8 @@
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; }
+html, body { height: 100%; overscroll-behavior: none; -webkit-text-size-adjust: 100%; }
+html { touch-action: pan-y; }
 body {
   margin: 0;
   background: var(--bg);
