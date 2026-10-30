@@ -113,6 +113,7 @@
     document.querySelectorAll('#pad button').forEach(b => b.classList.toggle('done', counts[+b.dataset.n] >= 9));
     $('#undoBtn').disabled = history.length === 0;
     $('#notesBtn').classList.toggle('on', notesMode);
+    $('#autoBtn').classList.toggle('on', !!S.auto);
     $('#mistakes').textContent = OPT.limit ? `${t('mistakes')} ${S.mistakes}/${MAX_MISTAKES}` : (S.mistakes ? `${t('mistakes')} ${S.mistakes}` : '');
     $('#mistakes').classList.toggle('warn', OPT.limit && S.mistakes >= MAX_MISTAKES - 1);
     $('#timer').hidden = !OPT.timer;
@@ -173,8 +174,14 @@
   function autoNotes() {
     if (!S || paused) return;
     pushHistory();
-    const cand = E.allCandidates(S.grid);
-    for (let i = 0; i < 81; i++) if (!S.grid[i]) S.notes[i] = cand[i];
+    if (S.auto) {               // second press: clear all notes again
+      for (let i = 0; i < 81; i++) S.notes[i] = 0;
+      S.auto = false;
+    } else {
+      const cand = E.allCandidates(S.grid);
+      for (let i = 0; i < 81; i++) if (!S.grid[i]) S.notes[i] = cand[i];
+      S.auto = true;
+    }
     buzz(8);
     save(); render();
   }
