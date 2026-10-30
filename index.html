@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<title>Sudoku</title>
+<meta name="description" content="A clean, quiet Sudoku. Three levels, light and dark, works offline.">
+<meta name="theme-color" content="#eef0f5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sudoku">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- HOME -->
+<section id="home" class="screen">
+  <header class="home-top">
+    <button class="icon-btn" id="themeBtn" aria-label="Appearance">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path class="sun" d="M12 4V2M12 22v-2M4 12H2M22 12h-2M5.6 5.6 4.2 4.2M19.8 19.8l-1.4-1.4M5.6 18.4l-1.4 1.4M19.8 4.2l-1.4 1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><circle class="sun" cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path class="moon" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" fill="currentColor"/></svg>
+    </button>
+    <button class="icon-btn" id="installBtn" aria-label="Install app" hidden>
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </header>
+
+  <div class="home-body">
+    <div class="logo" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span class="on"></span><span></span><span></span><span></span><span></span>
+    </div>
+    <h1>Sudoku</h1>
+    <p class="sub" id="homeSub">Pick a level</p>
+
+    <div class="levels">
+      <button class="level glass" data-level="kid">
+        <span class="level-name">Kid</span>
+        <span class="level-desc">Lots of hints. Just for fun.</span>
+      </button>
+      <button class="level glass" data-level="easy">
+        <span class="level-name">Easy</span>
+        <span class="level-desc">A nice warm up.</span>
+      </button>
+      <button class="level glass" data-level="hard">
+        <span class="level-name">Hard</span>
+        <span class="level-desc">Take your time.</span>
+      </button>
+    </div>
+
+    <button class="continue" id="continueBtn" hidden>
+      <span class="continue-label">Continue</span>
+      <span class="continue-meta" id="continueMeta"></span>
+    </button>
+  </div>
+
+  <footer class="home-foot">
+    <div class="stat"><b id="statWon">0</b><span>solved</span></div>
+    <div class="stat"><b id="statBest">–</b><span>best time</span></div>
+  </footer>
+</section>
+
+<!-- GAME -->
+<section id="game" class="screen" hidden>
+  <header class="game-top">
+    <button class="icon-btn" id="backBtn" aria-label="Back">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="game-title">
+      <span id="levelLabel">Easy</span>
+      <span class="dot">·</span>
+      <span id="timer">0:00</span>
+    </div>
+    <button class="icon-btn" id="pauseBtn" aria-label="Pause">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+    </button>
+  </header>
+
+  <div class="board-wrap">
+    <div class="board glass" id="board" role="grid" aria-label="Sudoku board"></div>
+    <div class="pause-cover glass" id="pauseCover" hidden>
+      <button class="big" id="resumeBtn">Resume</button>
+    </div>
+  </div>
+
+  <div class="tools glass">
+    <button class="tool" id="undoBtn">
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M9 14 4 9l5-5M4 9h9a6 6 0 0 1 0 12h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Undo</span>
+    </button>
+    <button class="tool" id="eraseBtn">
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="m4 15 9-9a2 2 0 0 1 3 0l4 4a2 2 0 0 1 0 3l-7 7H9l-5-5Z M9 20h11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Erase</span>
+    </button>
+    <button class="tool" id="notesBtn">
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 20h4l11-11a2 2 0 0 0 0-3l-1-1a2 2 0 0 0-3 0L4 16v4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Notes <em id="notesState">off</em></span>
+    </button>
+    <button class="tool" id="hintBtn">
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Hint</span>
+    </button>
+  </div>
+
+  <div class="pad glass" id="pad">
+    <button data-n="1">1</button><button data-n="2">2</button><button data-n="3">3</button>
+    <button data-n="4">4</button><button data-n="5">5</button><button data-n="6">6</button>
+    <button data-n="7">7</button><button data-n="8">8</button><button data-n="9">9</button>
+  </div>
+</section>
+
+<!-- WIN -->
+<section id="win" class="screen sheet" hidden>
+  <div class="sheet-card glass">
+    <div class="check" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="44" height="44"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h2>Solved</h2>
+    <p class="win-meta"><span id="winLevel">Easy</span> · <span id="winTime">0:00</span></p>
+    <p class="win-best" id="winBest" hidden>New best time</p>
+    <button class="big" id="againBtn">Play again</button>
+    <button class="plain" id="homeBtn">Home</button>
+  </div>
+</section>
+
+<!-- iOS INSTALL HINT -->
+<div class="toast glass" id="iosHint" hidden>
+  To install: tap <b>Share</b> then <b>Add to Home Screen</b>.
+  <button id="iosHintClose" aria-label="Close">OK</button>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
