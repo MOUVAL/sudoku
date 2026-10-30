@@ -448,6 +448,8 @@
   let lastTouch = 0;
   document.addEventListener('touchend', e => { const now = Date.now(); if (now - lastTouch < 300) e.preventDefault(); lastTouch = now; }, { passive: false });
   document.addEventListener('dblclick', e => e.preventDefault());
+  document.addEventListener('selectstart', e => e.preventDefault());
+  document.addEventListener('contextmenu', e => e.preventDefault());
 
   show('home');
 })();

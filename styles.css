@@ -72,7 +72,8 @@
   color-scheme: dark;
 }
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+::selection { background: transparent; }
 html, body { height: 100%; overscroll-behavior: none; -webkit-text-size-adjust: 100%; }
 html { touch-action: pan-y; }
 body {
