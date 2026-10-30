@@ -1,98 +1,66 @@
-/* Sudoku — vanilla JS, no dependencies */
+/* Sudoku app — UI, state, PWA. Puzzles come from engine.js (via worker.js when available). */
 (() => {
   'use strict';
 
-  // ---------- Generator / solver ----------
-  const CLUES = { kid: 48, easy: 38, hard: 28 };
-  const LEVEL_NAME = { kid: 'Kid', easy: 'Easy', hard: 'Hard' };
+  const E = self.SudokuEngine;
+  const PEERS = E.PEERS;
+  const LEVEL_NAME = { kid: 'Kid', easy: 'Easy', medium: 'Medium', hard: 'Hard', expert: 'Expert', extreme: 'Extreme', daily: 'Daily' };
+  const MAX_MISTAKES = 3;
 
-  const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
-
-  const peersOf = (() => {
-    const p = [];
-    for (let i = 0; i < 81; i++) {
-      const r = i / 9 | 0, c = i % 9, br = r - r % 3, bc = c - c % 3, s = new Set();
-      for (let k = 0; k < 9; k++) { s.add(r * 9 + k); s.add(k * 9 + c); s.add((br + (k / 3 | 0)) * 9 + bc + k % 3); }
-      s.delete(i); p.push([...s]);
-    }
-    return p;
-  })();
-
-  function candidates(g, i) {
-    const used = new Set();
-    for (const p of peersOf[i]) if (g[p]) used.add(g[p]);
-    const out = [];
-    for (let n = 1; n <= 9; n++) if (!used.has(n)) out.push(n);
-    return out;
-  }
-
-  function fill(g) {
-    let best = -1, bestC = null;
-    for (let i = 0; i < 81; i++) {
-      if (g[i]) continue;
-      const c = candidates(g, i);
-      if (c.length === 0) return false;
-      if (!bestC || c.length < bestC.length) { best = i; bestC = c; if (c.length === 1) break; }
-    }
-    if (best === -1) return true;
-    for (const n of shuffle(bestC)) { g[best] = n; if (fill(g)) return true; }
-    g[best] = 0;
-    return false;
-  }
-
-  function countSolutions(g, limit) {
-    let count = 0;
-    const rec = () => {
-      let best = -1, bestC = null;
-      for (let i = 0; i < 81; i++) {
-        if (g[i]) continue;
-        const c = candidates(g, i);
-        if (c.length === 0) return;
-        if (!bestC || c.length < bestC.length) { best = i; bestC = c; if (c.length === 1) break; }
-      }
-      if (best === -1) { count++; return; }
-      for (const n of bestC) { g[best] = n; rec(); if (count >= limit) { g[best] = 0; return; } }
-      g[best] = 0;
-    };
-    rec();
-    return count;
-  }
-
-  function generate(level) {
-    const solution = new Array(81).fill(0);
-    fill(solution);
-    const puzzle = solution.slice();
-    const target = CLUES[level];
-    let clues = 81;
-    const order = shuffle([...Array(81).keys()]);
-    for (const i of order) {
-      if (clues <= target) break;
-      const keep = puzzle[i];
-      puzzle[i] = 0;
-      if (countSolutions(puzzle.slice(), 2) !== 1) puzzle[i] = keep; else clues--;
-    }
-    return { puzzle, solution };
-  }
-
-  // ---------- State ----------
+  // ---------- DOM ----------
   const $ = s => document.querySelector(s);
-  const screens = { home: $('#home'), game: $('#game'), win: $('#win') };
+  const screens = { home: $('#home'), game: $('#game'), win: $('#win'), over: $('#over'), stats: $('#stats'), settings: $('#settings') };
   const boardEl = $('#board');
   const cells = [];
 
-  let S = null;         // current game state
+  // ---------- State ----------
+  let S = null;            // { level, puzzle, solution, grid, notes, time, hints, mistakes, seed?, dateKey? }
   let selected = -1;
   let notesMode = false;
   let tick = null;
   let history = [];
   let paused = false;
 
-  const save = () => { try { S ? localStorage.setItem('sudoku.game', JSON.stringify(S)) : localStorage.removeItem('sudoku.game'); } catch {} };
-  const load = () => { try { return JSON.parse(localStorage.getItem('sudoku.game')); } catch { return null; } };
-  const stats = () => { try { return JSON.parse(localStorage.getItem('sudoku.stats')) || { won: 0, best: {} }; } catch { return { won: 0, best: {} }; } };
-  const saveStats = st => { try { localStorage.setItem('sudoku.stats', JSON.stringify(st)); } catch {} };
+  const store = {
+    get: (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch { return d; } },
+    set: (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+  };
+  const save = () => store.set('sudoku.game', S);
+  const load = () => store.get('sudoku.game', null);
+  const stats = () => store.get('sudoku.stats2', { levels: {}, daily: { streak: 0, last: null, done: {} } });
+  const saveStats = st => store.set('sudoku.stats2', st);
+
+  const OPT_DEFAULT = { highlight: true, mistakes: true, limit: true, timer: true };
+  let OPT = { ...OPT_DEFAULT, ...store.get('sudoku.opts', {}) };
+  const saveOpts = () => store.set('sudoku.opts', OPT);
 
   const fmt = s => `${s / 60 | 0}:${String(s % 60).padStart(2, '0')}`;
+  const buzz = p => { try { navigator.vibrate && navigator.vibrate(p); } catch {} };
+
+  const todayKey = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+  const keyToSeed = k => +k.replace(/-/g, '');
+  const prettyDate = k => new Date(k + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  const yesterdayKey = () => { const d = new Date(); d.setDate(d.getDate() - 1); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+
+  // ---------- Puzzle source (worker with fallback) ----------
+  let worker = null, reqId = 0;
+  const pending = new Map();
+  try {
+    worker = new Worker('worker.js');
+    worker.onmessage = e => { const cb = pending.get(e.data.id); if (cb) { pending.delete(e.data.id); cb(e.data); } };
+    worker.onerror = () => { worker = null; };
+  } catch { worker = null; }
+
+  function makePuzzle(level, seed) {
+    return new Promise(resolve => {
+      if (worker) {
+        const id = ++reqId;
+        pending.set(id, resolve);
+        worker.postMessage({ id, level, seed });
+        setTimeout(() => { if (pending.has(id)) { pending.delete(id); resolve(E.generate(level, seed)); } }, 8000);
+      } else setTimeout(() => resolve(E.generate(level, seed)), 20);
+    });
+  }
 
   // ---------- Board ----------
   function buildBoard() {
@@ -101,9 +69,6 @@
       const d = document.createElement('div');
       d.className = 'cell';
       d.setAttribute('role', 'gridcell');
-      const c = i % 9, r = i / 9 | 0;
-      if (c === 2 || c === 5) d.classList.add('br');
-      if (r === 2 || r === 5) d.classList.add('bb');
       d.addEventListener('pointerdown', e => { e.preventDefault(); select(i); });
       boardEl.appendChild(d);
       cells.push(d);
@@ -118,12 +83,15 @@
       const el = cells[i], v = S.grid[i];
       if (v) counts[v]++;
       const given = S.puzzle[i] !== 0;
-      el.className = 'cell' + (i % 9 === 2 || i % 9 === 5 ? ' br' : '') + ((i / 9 | 0) === 2 || (i / 9 | 0) === 5 ? ' bb' : '');
-      if (given) el.classList.add('given'); else if (v) el.classList.add('user');
-      if (v && !given && v !== S.solution[i]) el.classList.add('wrong');
-      if (i === selected) el.classList.add('sel');
-      else if (selected >= 0 && peersOf[selected].includes(i)) el.classList.add('peer');
-      if (selVal && v === selVal && i !== selected) el.classList.add('same');
+      let cls = 'cell';
+      if (i % 9 === 2 || i % 9 === 5) cls += ' br';
+      if ((i / 9 | 0) === 2 || (i / 9 | 0) === 5) cls += ' bb';
+      if (given) cls += ' given'; else if (v) cls += ' user';
+      if (OPT.mistakes && v && !given && v !== S.solution[i]) cls += ' wrong';
+      if (i === selected) cls += ' sel';
+      else if (OPT.highlight && selected >= 0 && PEERS[selected].includes(i)) cls += ' peer';
+      if (OPT.highlight && selVal && v === selVal && i !== selected) cls += ' same';
+      el.className = cls;
       if (v) el.textContent = v;
       else if (S.notes[i]) {
         el.textContent = '';
@@ -135,36 +103,43 @@
     document.querySelectorAll('#pad button').forEach(b => b.classList.toggle('done', counts[+b.dataset.n] >= 9));
     $('#undoBtn').disabled = history.length === 0;
     $('#notesBtn').classList.toggle('on', notesMode);
-    $('#notesState').textContent = notesMode ? 'on' : 'off';
+    $('#mistakes').textContent = OPT.limit ? `Mistakes ${S.mistakes}/${MAX_MISTAKES}` : (S.mistakes ? `Mistakes ${S.mistakes}` : '');
+    $('#mistakes').classList.toggle('warn', OPT.limit && S.mistakes >= MAX_MISTAKES - 1);
+    $('#timer').hidden = !OPT.timer;
+    $('.game-title .dot').hidden = !OPT.timer;
   }
 
-  function select(i) {
-    if (paused) return;
-    selected = i;
-    render();
-  }
+  function select(i) { if (paused) return; selected = i; render(); }
 
-  function pushHistory() { history.push({ grid: S.grid.slice(), notes: S.notes.slice() }); if (history.length > 200) history.shift(); }
-
-  const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch {} };
+  function pushHistory() { history.push({ grid: S.grid.slice(), notes: S.notes.slice() }); if (history.length > 300) history.shift(); }
 
   function input(n) {
     if (!S || paused || selected < 0 || S.puzzle[selected]) return;
-    buzz(8);
     pushHistory();
     if (notesMode) {
       if (S.grid[selected]) S.grid[selected] = 0;
       S.notes[selected] ^= (1 << n);
+      buzz(6);
     } else {
-      S.grid[selected] = S.grid[selected] === n ? 0 : n;
+      const was = S.grid[selected];
+      S.grid[selected] = was === n ? 0 : n;
       S.notes[selected] = 0;
       if (S.grid[selected]) {
         cells[selected].classList.add('pop');
-        // clear this number from notes in peers
-        for (const p of peersOf[selected]) S.notes[p] &= ~(1 << n);
+        if (S.grid[selected] === S.solution[selected]) {
+          for (const p of PEERS[selected]) S.notes[p] &= ~(1 << n);
+          buzz(8);
+        } else {
+          S.mistakes++;
+          buzz([40, 30, 40]);
+          cells[selected].classList.add('shake');
+          setTimeout(() => cells[selected].classList.remove('shake'), 400);
+        }
       }
     }
-    save(); render(); checkWin();
+    save(); render();
+    if (OPT.limit && S.mistakes >= MAX_MISTAKES) return gameOver();
+    checkWin();
   }
 
   function erase() {
@@ -182,6 +157,15 @@
     save(); render();
   }
 
+  function autoNotes() {
+    if (!S || paused) return;
+    pushHistory();
+    const cand = E.allCandidates(S.grid);
+    for (let i = 0; i < 81; i++) if (!S.grid[i]) S.notes[i] = cand[i];
+    buzz(8);
+    save(); render();
+  }
+
   function hint() {
     if (!S || paused) return;
     let i = selected;
@@ -193,11 +177,25 @@
     }
     pushHistory();
     S.grid[i] = S.solution[i]; S.notes[i] = 0; S.hints++;
-    for (const p of peersOf[i]) S.notes[p] &= ~(1 << S.solution[i]);
+    for (const p of PEERS[i]) S.notes[p] &= ~(1 << S.solution[i]);
     selected = i;
     save(); render();
     cells[i].classList.add('flash');
     checkWin();
+  }
+
+  function gameOver() {
+    stopTimer();
+    buzz([80, 40, 80]);
+    const snap = S;
+    S = null; save();
+    $('#retryBtn').onclick = () => {
+      S = { ...snap, grid: snap.puzzle.slice(), notes: new Array(81).fill(0), time: 0, hints: 0, mistakes: 0 };
+      history = []; selected = -1; notesMode = false;
+      enterGame();
+    };
+    $('#overNewBtn').onclick = () => snap.level === 'daily' ? show('home') : start(snap.level);
+    setTimeout(() => show('over'), 300);
   }
 
   function checkWin() {
@@ -205,17 +203,26 @@
     stopTimer();
     buzz([30, 40, 60]);
     const st = stats();
-    st.won++;
-    const prev = st.best[S.level];
-    const isBest = !prev || S.time < prev;
-    if (isBest) st.best[S.level] = S.time;
+    const L = st.levels[S.level] || (st.levels[S.level] = { won: 0, best: null, total: 0 });
+    L.won++; L.total += S.time;
+    const isBest = L.best == null || S.time < L.best;
+    if (isBest) L.best = S.time;
+    if (S.level === 'daily' && S.dateKey) {
+      const d = st.daily;
+      if (!d.done[S.dateKey]) {
+        d.streak = d.last === yesterdayKey() ? d.streak + 1 : 1;
+        d.last = S.dateKey;
+        d.done[S.dateKey] = S.time;
+      }
+    }
     saveStats(st);
-    $('#winLevel').textContent = LEVEL_NAME[S.level];
+    $('#winLevel').textContent = S.level === 'daily' ? `Daily ${prettyDate(S.dateKey)}` : LEVEL_NAME[S.level];
     $('#winTime').textContent = fmt(S.time);
-    $('#winBest').hidden = !isBest;
+    $('#winBest').hidden = !(isBest && L.won > 1);
     const lvl = S.level;
     S = null; save();
-    $('#againBtn').onclick = () => start(lvl);
+    $('#againBtn').textContent = lvl === 'daily' ? 'Home' : 'Play again';
+    $('#againBtn').onclick = () => lvl === 'daily' ? show('home') : start(lvl);
     setTimeout(() => show('win'), 350);
   }
 
@@ -225,13 +232,7 @@
     tick = setInterval(() => { if (!paused && S) { S.time++; $('#timer').textContent = fmt(S.time); if (S.time % 5 === 0) save(); } }, 1000);
   }
   function stopTimer() { clearInterval(tick); tick = null; }
-
-  function setPaused(p) {
-    paused = p;
-    $('#pauseCover').hidden = !p;
-    $('#pauseBtn').hidden = p;
-    if (S) save();
-  }
+  function setPaused(p) { paused = p; $('#pauseCover').hidden = !p; $('#pauseBtn').hidden = p; if (S) save(); }
 
   // ---------- Screens ----------
   function show(name) {
@@ -243,32 +244,44 @@
     const g = load();
     const st = stats();
     $('#continueBtn').hidden = !g;
-    if (g) $('#continueMeta').textContent = `${LEVEL_NAME[g.level]} · ${fmt(g.time)}`;
-    $('#statWon').textContent = st.won;
-    const bests = Object.values(st.best);
-    $('#statBest').textContent = bests.length ? fmt(Math.min(...bests)) : '–';
+    if (g) $('#continueMeta').textContent = `${g.level === 'daily' ? 'Daily' : LEVEL_NAME[g.level]} · ${fmt(g.time)}`;
+    const map = { kid: 'bk', easy: 'be', medium: 'bm', hard: 'bh', expert: 'bx', extreme: 'bz' };
+    for (const k in map) { const L = st.levels[k]; $('#' + map[k]).textContent = L && L.best != null ? fmt(L.best) : ''; }
+    const tk = todayKey();
+    $('#dailyDate').textContent = prettyDate(tk);
+    const done = st.daily.done[tk];
+    $('#dailyRight').textContent = done != null ? `Solved · ${fmt(done)}` : (st.daily.streak > 0 && st.daily.last === yesterdayKey() ? `${st.daily.streak} day streak` : '');
+    $('#dailyBtn').classList.toggle('done', done != null);
   }
 
-  function start(level) {
+  async function start(level, seed, dateKey) {
     $('#homeSub').textContent = 'Making your puzzle…';
-    requestAnimationFrame(() => setTimeout(() => {
-      const { puzzle, solution } = generate(level);
-      S = { level, puzzle, solution, grid: puzzle.slice(), notes: new Array(81).fill(0), time: 0, hints: 0 };
-      history = []; selected = -1; notesMode = false;
-      enterGame();
-      $('#homeSub').textContent = 'Pick a level';
-    }, 20));
+    document.body.classList.add('busy');
+    const r = await makePuzzle(level === 'daily' ? 'medium' : level, seed);
+    document.body.classList.remove('busy');
+    $('#homeSub').textContent = 'Pick a level';
+    S = { level, puzzle: r.puzzle, solution: r.solution, grid: r.puzzle.slice(), notes: new Array(81).fill(0), time: 0, hints: 0, mistakes: 0, dateKey: dateKey || null };
+    history = []; selected = -1; notesMode = false;
+    enterGame();
+  }
+
+  function startDaily() {
+    const tk = todayKey();
+    const g = load();
+    if (g && g.level === 'daily' && g.dateKey === tk) return resume();
+    start('daily', keyToSeed(tk), tk);
   }
 
   function resume() {
     const g = load();
     if (!g) return;
-    S = g; history = []; selected = -1; notesMode = false;
+    S = g; if (S.mistakes == null) S.mistakes = 0;
+    history = []; selected = -1; notesMode = false;
     enterGame();
   }
 
   function enterGame() {
-    $('#levelLabel').textContent = LEVEL_NAME[S.level];
+    $('#levelLabel').textContent = S.level === 'daily' ? `Daily ${prettyDate(S.dateKey)}` : LEVEL_NAME[S.level];
     $('#timer').textContent = fmt(S.time);
     setPaused(false);
     show('game');
@@ -276,28 +289,48 @@
     startTimer();
   }
 
-  function goHome() {
-    stopTimer();
-    if (S) save();
-    S = null;
-    show('home');
+  function restart() {
+    if (!S) return;
+    S.grid = S.puzzle.slice(); S.notes = new Array(81).fill(0); S.time = 0; S.hints = 0; S.mistakes = 0;
+    history = []; selected = -1; notesMode = false;
+    enterGame();
+  }
+
+  function showSettings() {
+    $('#optHighlight').checked = OPT.highlight;
+    $('#optMistakes').checked = OPT.mistakes;
+    $('#optLimit').checked = OPT.limit;
+    $('#optTimer').checked = OPT.timer;
+    show('settings');
+  }
+
+  function goHome() { stopTimer(); if (S) save(); S = null; show('home'); }
+
+  function showStats() {
+    const st = stats();
+    $('#streakNum').textContent = st.daily.last === todayKey() || st.daily.last === yesterdayKey() ? st.daily.streak : 0;
+    const tb = $('#statsTable tbody'); tb.innerHTML = '';
+    for (const k of ['daily', 'kid', 'easy', 'medium', 'hard', 'expert', 'extreme']) {
+      const L = st.levels[k];
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${LEVEL_NAME[k]}</td><td>${L ? L.won : 0}</td><td>${L && L.best != null ? fmt(L.best) : '–'}</td><td>${L && L.won ? fmt(Math.round(L.total / L.won)) : '–'}</td>`;
+      tb.appendChild(tr);
+    }
+    show('stats');
   }
 
   // ---------- Theme ----------
-  const themeOrder = ['system', 'light', 'dark'];
   function applyTheme(t) {
     if (t === 'system') document.documentElement.removeAttribute('data-theme');
     else document.documentElement.setAttribute('data-theme', t);
-    try { localStorage.setItem('sudoku.theme', t); } catch {}
+    store.set('sudoku.theme', t);
   }
-  function cycleTheme() {
-    const cur = localStorage.getItem('sudoku.theme') || 'system';
+  function toggleTheme() {
     const dark = document.documentElement.getAttribute('data-theme') === 'dark' ||
       (!document.documentElement.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
     applyTheme(dark ? 'light' : 'dark');
-    void cur; void themeOrder;
   }
-  applyTheme(localStorage.getItem('sudoku.theme') || 'system');
+  applyTheme(store.get('sudoku.theme', 'system'));
 
   // ---------- Install (PWA) ----------
   let installEvt = null;
@@ -316,16 +349,25 @@
   // ---------- Wire up ----------
   buildBoard();
   document.querySelectorAll('.level').forEach(b => b.addEventListener('click', () => start(b.dataset.level)));
+  $('#dailyBtn').addEventListener('click', startDaily);
   $('#continueBtn').addEventListener('click', resume);
   $('#backBtn').addEventListener('click', goHome);
   $('#homeBtn').addEventListener('click', () => show('home'));
+  $('#statsBtn').addEventListener('click', showStats);
+  $('#statsClose').addEventListener('click', () => show('home'));
   $('#pauseBtn').addEventListener('click', () => setPaused(true));
   $('#resumeBtn').addEventListener('click', () => setPaused(false));
+  $('#restartBtn').addEventListener('click', restart);
+  $('#settingsBtn').addEventListener('click', showSettings);
+  $('#settingsClose').addEventListener('click', () => show('home'));
+  for (const [id, key] of [['optHighlight', 'highlight'], ['optMistakes', 'mistakes'], ['optLimit', 'limit'], ['optTimer', 'timer']])
+    $('#' + id).addEventListener('change', e => { OPT[key] = e.target.checked; saveOpts(); });
   $('#undoBtn').addEventListener('click', undo);
   $('#eraseBtn').addEventListener('click', erase);
   $('#notesBtn').addEventListener('click', () => { notesMode = !notesMode; render(); });
+  $('#autoBtn').addEventListener('click', autoNotes);
   $('#hintBtn').addEventListener('click', hint);
-  $('#themeBtn').addEventListener('click', cycleTheme);
+  $('#themeBtn').addEventListener('click', toggleTheme);
   document.querySelectorAll('#pad button').forEach(b => b.addEventListener('pointerdown', e => { e.preventDefault(); input(+b.dataset.n); }));
 
   document.addEventListener('keydown', e => {
@@ -337,8 +379,7 @@
     else if (e.key.startsWith('Arrow') && selected >= 0) {
       const r = selected / 9 | 0, c = selected % 9;
       const m = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] }[e.key];
-      const nr = Math.max(0, Math.min(8, r + m[0])), nc = Math.max(0, Math.min(8, c + m[1]));
-      select(nr * 9 + nc); e.preventDefault();
+      select(Math.max(0, Math.min(8, r + m[0])) * 9 + Math.max(0, Math.min(8, c + m[1]))); e.preventDefault();
     } else if (e.key === 'Escape') select(-1);
   });
 
