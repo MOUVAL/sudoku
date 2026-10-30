@@ -394,6 +394,7 @@
   });
 
   document.addEventListener('visibilitychange', () => { if (document.hidden && S && !screens.game.hidden) setPaused(true); });
+  window.addEventListener('pagehide', () => { if (S) save(); });
 
   show('home');
 })();
